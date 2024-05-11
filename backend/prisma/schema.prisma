@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id            Int             @id @default(autoincrement())
+  email         String          @unique @db.VarChar(255)
+  username      String?         @db.VarChar(255)
+  password      String?         @db.VarChar(255)
+  createdat     DateTime?       @default(now()) @db.Timestamp(6)
+  isgoogleauth  Boolean?        @default(false)
+  emailverified Boolean?        @default(false)
+  isloggedin    Boolean?        @default(false)
+  user_sessions user_sessions[]
+}
+
+model user_sessions {
+  id         Int             @id @default(autoincrement())
+  user_id    Int?
+  event_type event_type_enum
+  timestamp  DateTime        @db.Timestamp(6)
+  users      users?          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+enum event_type_enum {
+  login
+  logout
+}
