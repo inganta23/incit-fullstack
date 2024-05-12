@@ -138,18 +138,8 @@ const verifyEmail = async (req, res) => {
             data: { emailverified: true },
         });
         await prisma.$transaction(async (prisma) => {
-            await prisma.user_sessions.create({
-                data: {
-                    user_id: user.id,
-                    event_type: 'login',
-                    timestamp: new Date(),
-                },
-            });
-
-            await prisma.users.update({
-                where: { email: user.email },
-                data: { isloggedin: true },
-            });
+            await createUserSession(prisma, user.id);
+            await updateUserLoggedInStatus(prisma, user.email);
         });
         res.cookie("access_token", token)
         return res.redirect(config.clientUrl);
@@ -162,7 +152,7 @@ const verifyEmail = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await prisma.users.findUnique({ where: { email } });
+        const user = await findUserByEmail(email);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -181,18 +171,8 @@ const login = async (req, res) => {
         }
 
         await prisma.$transaction(async (prisma) => {
-            await prisma.user_sessions.create({
-                data: {
-                    user_id: user.id,
-                    event_type: 'login',
-                    timestamp: new Date(),
-                },
-            });
-
-            await prisma.users.update({
-                where: { email: user.email },
-                data: { isloggedin: true },
-            });
+            await createUserSession(prisma, user.id)
+            await updateUserLoggedInStatus(prisma, user.email)
         });
         const token = jwt.sign({ email: user.email, name: user.username }, config.secret, { expiresIn: '1d' });
         res.json({ message: 'Login successful', access_token: token });
@@ -215,18 +195,8 @@ const logout = async (req, res) => {
         }
 
         await prisma.$transaction(async (prisma) => {
-            await prisma.user_sessions.create({
-                data: {
-                    user_id: user.id,
-                    event_type: 'logout',
-                    timestamp: new Date(),
-                },
-            });
-
-            await prisma.users.update({
-                where: { email: user.email },
-                data: { isloggedin: false },
-            });
+            await createUserSession(prisma, user.id, 'logout');
+            await updateUserLoggedInStatus(prisma, user.email, false);
         });
         return res.json({ message: 'Logout successful' });
 
@@ -236,5 +206,32 @@ const logout = async (req, res) => {
     }
 };
 
+const resetPassword = async (req, res) => {
+    try {
+        const { email, password, newPassword } = req.body;
 
-module.exports = { googleAuth, register, verifyEmail, login, logout }
+        const user = await findUserByEmail(email);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ error: 'Invalid current password' });
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        await prisma.users.update({
+            where: { email },
+            data: { password: hashedNewPassword },
+        });
+
+        return res.json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Error during password reset:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+};
+
+module.exports = { googleAuth, register, verifyEmail, login, logout, resetPassword }

@@ -7,11 +7,11 @@ const registerUser = async (userData) => {
     return users
 }
 
-const createUserSession = async (prisma, userId) => {
+const createUserSession = async (prisma, userId, eventType = 'login') => {
     const session = await prisma.user_sessions.create({
         data: {
             user_id: userId,
-            event_type: 'login',
+            event_type: eventType,
             timestamp: new Date(),
         },
     });
@@ -19,10 +19,11 @@ const createUserSession = async (prisma, userId) => {
     return session;
 };
 
-const updateUserLoggedInStatus = async (prisma, email) => {
+
+const updateUserLoggedInStatus = async (prisma, email, isLoggedIn = true) => {
     await prisma.users.update({
         where: { email },
-        data: { isloggedin: true },
+        data: { isloggedin: isLoggedIn },
     });
 };
 

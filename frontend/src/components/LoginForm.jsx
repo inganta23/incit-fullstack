@@ -14,6 +14,7 @@ const LoginForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
+    setError("")
     try {
       const response = await axios.post(login, {
         email,
@@ -25,7 +26,6 @@ const LoginForm = () => {
       setError(error.message);
     } finally {
       setIsLoading(false);
-      setError("")
     }
   };
 

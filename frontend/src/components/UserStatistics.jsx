@@ -41,7 +41,6 @@ const UserStatistics = (props) => {
 
     return (
         <div>
-            <Typography variant="h6" gutterBottom textAlign="center">User statistics</Typography>
             <Grid container spacing={3}>
                 <Grid item xs={12} sm={6} md={4}>
                     <Paper elevation={3} sx={{ padding: '20px', textAlign: 'center', minHeight: '150px' }}>

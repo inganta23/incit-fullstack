@@ -6,7 +6,8 @@ export const login = `${baseApiUrl}/auth/login`;
 export const logout = `${baseApiUrl}/auth/logout`;
 export const register = `${baseApiUrl}/auth/register`;
 export const user = `${baseApiUrl}/user`
-export const userInfo = `${baseApiUrl}/user//user-info`
+export const userInfo = `${baseApiUrl}/user/user-info`
+export const resetPass = `${baseApiUrl}/auth/reset-pass`;
 
 export const totalUsersAPI = `${baseApiUrl}/user/total-users`
 export const activeUsersTodayAPI = `${baseApiUrl}/user/active-users-today`

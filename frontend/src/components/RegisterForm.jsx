@@ -34,6 +34,7 @@ const RegisterForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setIsLoading(true);
+        setError("")
         if (password !== confirmPassword) {
             setError("Passwords don't match");
             setIsLoading(false);
@@ -47,17 +48,15 @@ const RegisterForm = () => {
             return;
         }
         try {
-            const response = await axios.post(register, {
+            await axios.post(register, {
                 name,
                 email,
                 password
             });
-            // Handle success
         } catch (error) {
             setError(error.message);
         } finally {
             setIsLoading(false);
-            setError("")
         }
     };
 

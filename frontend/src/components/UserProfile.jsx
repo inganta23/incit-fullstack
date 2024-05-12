@@ -1,12 +1,14 @@
-import { Button, Container, TextField, Typography } from '@mui/material';
+import { Alert, Button, Container, Snackbar, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react'
-import { user, userInfo } from '../api/endpoint';
 import axios from 'axios';
+import { user } from '../api/endpoint';
 
 const UserProfile = (props) => {
     const [isEditable, setIsEditable] = useState(false);
     const [name, setName] = useState(props.name)
     const [email, setEmail] = useState(props.email)
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
     const handleEditToggle = () => {
         setIsEditable(!isEditable);
@@ -19,14 +21,17 @@ const UserProfile = (props) => {
                     Authorization: `Bearer ${accessToken}`
                 }
             })
+            setSuccessMessage("Username updated successfully");
         } catch (error) {
             console.log(error)
+            setErrorMessage("Failed to update username");
         }
     }
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault()
         await editUsername(props.accessToken, props.isGoogleAuth)
-        await props.getUserProfile(accessToken, isGoogleAuth)
+        await props.getUserProfile(props.accessToken, props.isGoogleAuth)
     }
 
     return (
@@ -64,8 +69,19 @@ const UserProfile = (props) => {
             <Button onClick={handleEditToggle}>
                 {isEditable ? 'Cancel' : 'Edit'}
             </Button>
+
+            <Snackbar open={!!successMessage} autoHideDuration={6000} onClose={() => setSuccessMessage("")}>
+                <Alert severity="success" onClose={() => setSuccessMessage("")}>
+                    {successMessage}
+                </Alert>
+            </Snackbar>
+            <Snackbar open={!!errorMessage} autoHideDuration={6000} onClose={() => setErrorMessage("")}>
+                <Alert severity="error" onClose={() => setErrorMessage("")}>
+                    {errorMessage}
+                </Alert>
+            </Snackbar>
         </Container>
     )
 }
 
-export default UserProfile
+export default UserProfile;

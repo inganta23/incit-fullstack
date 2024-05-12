@@ -19,6 +19,8 @@ const userInfo = async (req, res) => {
             userInfo.data.name = userDb.username
         } else {
             const decoded = jwt.verify(accessToken, config.secret);
+            const userDb = await findUserByEmail(decoded?.email);
+            decoded.name = userDb.username;
             userInfo.data = decoded;
         }
         return res.json({ user: userInfo.data, message: 'Successfully retrieve user information' })
