@@ -27,3 +27,5 @@ To run this application locally, follow these steps:
 
 Please note that Facebook sign-in/sign-up functionality is not included in this application. Integrating Facebook sign-in/sign-up requires HTTPS, and it involves a more complicated setup process (need https).
 
+I use dummy gmail as the verification sender so feel free to use it.
+
